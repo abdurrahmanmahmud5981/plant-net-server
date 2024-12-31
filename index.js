@@ -62,7 +62,7 @@ async function run() {
       if (isExist) {
         return res.send(isExist)
       }
-      const result = await userCollection.insertOne({...user, timestamp: Date.now()})
+      const result = await userCollection.insertOne({...user, timestamp: Date.now(),   role: 'customer',})
       res.send(result)
     })
     // Generate jwt token
