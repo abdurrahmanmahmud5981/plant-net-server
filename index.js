@@ -106,7 +106,7 @@ async function run() {
     // Get all plants from the database
      // save a plant to the database
      app.get('/plants', async(req, res) => {
-      const result = await plantsCollection.find().toArray();;
+      const result = await plantsCollection.find().limit(8).toArray();
       res.send(result)
     })
 
