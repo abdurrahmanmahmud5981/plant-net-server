@@ -98,18 +98,22 @@ async function run() {
 
 
     // save a plant to the database
-    app.post('/plants',verifyToken, async(req, res) => {
+    app.post('/plants', verifyToken, async (req, res) => {
       const plant = req.body
       const result = await plantsCollection.insertOne(plant);
       res.send(result)
     })
     // Get all plants from the database
-     // save a plant to the database
-     app.get('/plants', async(req, res) => {
+    app.get('/plants', async (req, res) => {
       const result = await plantsCollection.find().limit(8).toArray();
       res.send(result)
     })
-
+    // Get a plant by id
+    app.get('/plants/:id', async (req, res) => {
+      const id = req.params.id;
+      const result = await plantsCollection.findOne({ _id: new ObjectId(id) });
+      res.send(result);
+    })
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(
