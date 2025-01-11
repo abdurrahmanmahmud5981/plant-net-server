@@ -114,6 +114,13 @@ async function run() {
       const result = await plantsCollection.findOne({ _id: new ObjectId(id) });
       res.send(result);
     })
+
+    // save order data to database
+    app.post('/plants', verifyToken, async (req, res) => {
+      const plant = req.body;
+      const result  = await plantsCollection.insertOne(plant);
+      res.send(result);
+    })
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(
