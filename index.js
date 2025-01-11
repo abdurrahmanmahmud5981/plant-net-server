@@ -53,6 +53,7 @@ async function run() {
     const db = client.db('plant-net-DB');
     const usersCollection = db.collection('users');
     const plantsCollection = db.collection('plants');
+    const ordersCollection = db.collection('orders');
 
     // save or update a user in db 
     app.post('/users/:email', async (req, res) => {
@@ -116,11 +117,15 @@ async function run() {
     })
 
     // save order data to database
-    app.post('/plants', verifyToken, async (req, res) => {
-      const plant = req.body;
-      const result  = await plantsCollection.insertOne(plant);
+    app.post('/orders', verifyToken, async (req, res) => {
+      const orderInfo = req.body;
+      console.log('order info : ----',orderInfo);
+      const result  = await ordersCollection.insertOne(orderInfo);
       res.send(result);
     })
+
+    // manage plant quantity
+    // app.patch()
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(
