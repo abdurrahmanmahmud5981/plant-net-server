@@ -131,6 +131,19 @@ async function run() {
       res.send(result)
     })
 
+
+    // update user role and status
+    app.patch('/user/role', verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const { role, status } = req.body;
+      const query = { email }
+      const updateDoc = {
+        $set: { role, status }
+      }
+      const result = await usersCollection.updateOne(query, updateDoc);
+      res.send(result);
+    })
+
     // save a plant to the database
     app.post('/plants', verifyToken, async (req, res) => {
       const plant = req.body
