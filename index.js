@@ -37,6 +37,19 @@ const verifyToken = async (req, res, next) => {
   })
 }
 
+// send email using nodemailer
+const sendEmail= (emailAddress, emailData)=>{
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,// true for port 465, false for other ports
+    auth:{
+      user: '',
+      pass: '',
+    }
+  })
+}
+
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.mq0mae1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
 
 const uri = `mongodb://localhost:27017`
@@ -330,6 +343,15 @@ async function run() {
       }
       const result = await plantsCollection.updateOne(filter, updateDoc);
       res.send(result);
+    })
+
+
+    // Admin Stats 
+    app.get('/admin-stat',verifyToken, verifyAdmin, async(req,res)=>{
+      // get total user and total plant 
+      const totalUser = await usersCollection.estimatedDocumentCount()
+      const totalPlants = await plantsCollection.estimatedDocumentCount()
+      res.send({totalPlants,totalUser})
     })
     // app.patch()
     // Send a ping to confirm a successful connection
