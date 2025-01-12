@@ -123,6 +123,12 @@ async function run() {
       res.send( result?.role )
     })
 
+    // get all users 
+    app.get('/all-users',verifyToken, async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result)
+    })
+
     // save a plant to the database
     app.post('/plants', verifyToken, async (req, res) => {
       const plant = req.body
