@@ -4,6 +4,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const jwt = require('jsonwebtoken')
+const nodemailer = require("nodemailer");
 const morgan = require('morgan')
 
 const port = process.env.PORT || 9000
