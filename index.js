@@ -116,7 +116,12 @@ async function run() {
       }
     })
 
-
+    // get user role 
+    app.get('/users/role/:email', async (req, res) => {
+      const email = req.params.email;
+      const result = await usersCollection.findOne({ email });
+      res.send( result?.role )
+    })
 
     // save a plant to the database
     app.post('/plants', verifyToken, async (req, res) => {
