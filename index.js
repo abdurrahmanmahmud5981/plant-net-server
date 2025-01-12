@@ -294,6 +294,18 @@ async function run() {
       res.send(result);
     })
 
+     // update a Order status
+     app.patch('/orders/:id', verifyToken, verifySeller, async (req, res) => {
+      const id = req.params.id;
+      const { status } = req.body;
+      const query = {_id: new ObjectId(id) }
+      const updateDoc = {
+        $set: { status }
+      }
+      const result = await ordersCollection.updateOne(query, updateDoc);
+      res.send(result);
+    })
+
     // cancel/delete an order 
     app.delete('/orders/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
