@@ -66,6 +66,17 @@ async function run() {
       next();
     }
 
+    // verify seller middleware
+    const verifySeller = async (req, res, next) => {
+      const email = req.user?.email;
+      const query = { email };
+      const result = await usersCollection.findOne(query);
+      if (!result || result?.role !== 'seller') {
+        return res.status(403).send('Forbidden Access! Seller Only Actions!')
+      }
+      next();
+    }
+
 
     // save or update a user in db 
     app.post('/users/:email', async (req, res) => {
@@ -81,7 +92,7 @@ async function run() {
     })
 
     // manage user status and role
-    app.patch('/users/:email', verifyToken, async (req, res) => {
+    app.patch('/users/:email', verifyToken,verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const query = { email }
       const user = await usersCollection.findOne(query);
@@ -145,7 +156,7 @@ async function run() {
 
 
     // update user role and status
-    app.patch('/user/role/:email', verifyToken, async (req, res) => {
+    app.patch('/user/role/:email', verifyToken,verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const { role } = req.body;
       const query = { email }
@@ -157,7 +168,7 @@ async function run() {
     })
 
     // save a plant to the database
-    app.post('/plants', verifyToken, async (req, res) => {
+    app.post('/plants', verifyToken,verifySeller, async (req, res) => {
       const plant = req.body
       const result = await plantsCollection.insertOne(plant);
       res.send(result)
