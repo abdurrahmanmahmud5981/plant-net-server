@@ -133,12 +133,12 @@ async function run() {
 
 
     // update user role and status
-    app.patch('/user/role', verifyToken, async (req, res) => {
+    app.patch('/user/role/:email', verifyToken, async (req, res) => {
       const email = req.params.email;
-      const { role, status } = req.body;
+      const { role } = req.body;
       const query = { email }
       const updateDoc = {
-        $set: { role, status }
+        $set: { role, status:"Verified" }
       }
       const result = await usersCollection.updateOne(query, updateDoc);
       res.send(result);
