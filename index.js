@@ -251,6 +251,49 @@ async function run() {
       res.send(result);
     })
 
+    // get all orders for a seller;
+    app.get('/seller-orders/:email', verifyToken, verifySeller, async (req, res) => {
+      const email = req.params.email;
+      const query = { seller: email };
+      const result = await ordersCollection.aggregate([
+        {
+          $match: query,//match specific customers data only by email
+        },
+        {
+          $addFields: {
+            plantId: { $toObjectId: '$plantId' },// conver plantId string to objectid field
+          }
+        },
+        {
+          $lookup: {
+            //go to a defferent collection and look for data 
+            from: 'plants',// collection name 
+            localField: 'plantId',// local data that you want to match
+            foreignField: '_id', // foreign field name of that same data 
+            as: 'plants' //return the data as plants array {array naming }
+          }
+        },
+        {
+          $unwind: '$plants'// unwind lookup result , return without array
+        },
+        {
+          $addFields: {
+            // add these fields in order object 
+            name: '$plants.name',
+
+
+          }
+        }, {
+          $project: {
+            // remove plants object property from order object
+            plants: 0,
+            // customer:0
+          }
+        }
+      ]).toArray();
+      res.send(result);
+    })
+
     // cancel/delete an order 
     app.delete('/orders/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
