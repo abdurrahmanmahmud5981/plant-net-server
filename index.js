@@ -120,12 +120,14 @@ async function run() {
     app.get('/users/role/:email', async (req, res) => {
       const email = req.params.email;
       const result = await usersCollection.findOne({ email });
-      res.send( result?.role )
+      res.send(result?.role)
     })
 
     // get all users 
-    app.get('/all-users',verifyToken, async (req, res) => {
-      const result = await usersCollection.find().toArray();
+    app.get('/all-users/:email', verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const query = { email: { $ne: email } }
+      const result = await usersCollection.find(query).toArray();
       res.send(result)
     })
 
