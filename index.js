@@ -153,6 +153,13 @@ async function run() {
       res.send(result)
     })
 
+    // delete a plant by seller 
+    app.delete('/plants/:id', verifyToken, verifySeller, async (req, res) => {
+      const id = req.params.id;
+      const result = await plantsCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result);
+    })
+
     // get all users 
     app.get('/all-users/:email', verifyToken, verifyAdmin, async (req, res) => {
       const email = req.params.email;
