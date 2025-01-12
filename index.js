@@ -55,6 +55,18 @@ async function run() {
     const plantsCollection = db.collection('plants');
     const ordersCollection = db.collection('orders');
 
+    // verify admin middleware
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.user?.email;
+      const query = { email };
+      const result = await usersCollection.findOne(query);
+      if (!result || result?.role !== 'admin') {
+        return res.status(403).send('Forbidden Access! Admin Only Actions!')
+      }
+      next();
+    }
+
+
     // save or update a user in db 
     app.post('/users/:email', async (req, res) => {
       const email = req.body.email
@@ -124,7 +136,7 @@ async function run() {
     })
 
     // get all users 
-    app.get('/all-users/:email', verifyToken, async (req, res) => {
+    app.get('/all-users/:email', verifyToken, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const query = { email: { $ne: email } }
       const result = await usersCollection.find(query).toArray();
@@ -138,7 +150,7 @@ async function run() {
       const { role } = req.body;
       const query = { email }
       const updateDoc = {
-        $set: { role, status:"Verified" }
+        $set: { role, status: "Verified" }
       }
       const result = await usersCollection.updateOne(query, updateDoc);
       res.send(result);
