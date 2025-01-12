@@ -92,7 +92,7 @@ async function run() {
     })
 
     // manage user status and role
-    app.patch('/users/:email', verifyToken,verifyAdmin, async (req, res) => {
+    app.patch('/users/:email', verifyToken, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const query = { email }
       const user = await usersCollection.findOne(query);
@@ -146,6 +146,13 @@ async function run() {
       res.send(result?.role)
     })
 
+    // get inventory data for seller 
+    app.get('/plants/seller', verifyToken, verifySeller, async (req, res) => {
+      const email = req.user?.email;
+      const result = await plantsCollection.find({ "seller.email": email }).toArray();
+      res.send(result)
+    })
+
     // get all users 
     app.get('/all-users/:email', verifyToken, verifyAdmin, async (req, res) => {
       const email = req.params.email;
@@ -156,7 +163,7 @@ async function run() {
 
 
     // update user role and status
-    app.patch('/user/role/:email', verifyToken,verifyAdmin, async (req, res) => {
+    app.patch('/user/role/:email', verifyToken, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const { role } = req.body;
       const query = { email }
@@ -168,7 +175,7 @@ async function run() {
     })
 
     // save a plant to the database
-    app.post('/plants', verifyToken,verifySeller, async (req, res) => {
+    app.post('/plants', verifyToken, verifySeller, async (req, res) => {
       const plant = req.body
       const result = await plantsCollection.insertOne(plant);
       res.send(result)
