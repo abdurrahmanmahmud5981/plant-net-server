@@ -38,12 +38,12 @@ const verifyToken = async (req, res, next) => {
 }
 
 // send email using nodemailer
-const sendEmail= (emailAddress, emailData)=>{
+const sendEmail = (emailAddress, emailData) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
     secure: false,// true for port 465, false for other ports
-    auth:{
+    auth: {
       user: '',
       pass: '',
     }
@@ -308,11 +308,11 @@ async function run() {
       res.send(result);
     })
 
-     // update a Order status
-     app.patch('/orders/:id', verifyToken, verifySeller, async (req, res) => {
+    // update a Order status
+    app.patch('/orders/:id', verifyToken, verifySeller, async (req, res) => {
       const id = req.params.id;
       const { status } = req.body;
-      const query = {_id: new ObjectId(id) }
+      const query = { _id: new ObjectId(id) }
       const updateDoc = {
         $set: { status }
       }
@@ -347,11 +347,35 @@ async function run() {
 
 
     // Admin Stats 
-    app.get('/admin-stat',verifyToken, verifyAdmin, async(req,res)=>{
+    app.get('/admin-stat', verifyToken, verifyAdmin, async (req, res) => {
       // get total user and total plant 
       const totalUser = await usersCollection.estimatedDocumentCount()
       const totalPlants = await plantsCollection.estimatedDocumentCount()
-      res.send({totalPlants,totalUser})
+
+
+      const allOrder = await ordersCollection.find().toArray();
+      // const totalPrice = allOrder.reduce((sum, order) => sum + order.price, 0);
+      // const totalOrder = allOrder.length;
+      // console.log(totalOrder);
+
+
+      // get total revenue . total order 
+      const ordersDetails = await ordersCollection.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: '$price' },
+            totalOrder: { $sum: 1 }
+          }
+        },
+        {
+          $project: {
+            _id: 0
+          }
+        }
+      ]).next()
+
+      res.send({ totalPlants, totalUser, ...ordersDetails });
     })
     // app.patch()
     // Send a ping to confirm a successful connection
