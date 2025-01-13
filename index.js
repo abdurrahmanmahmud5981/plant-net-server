@@ -358,7 +358,46 @@ async function run() {
       // const totalOrder = allOrder.length;
       // console.log(totalOrder);
 
+      // // gegerate chart data 
+      // const  chartData ={
+      //   date:'',
+      //   quantity:'',
+      //   price:'',
+      //   order:'',
 
+      // }
+
+      const chartData = await ordersCollection.aggregate([
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: '%d/%m/%Y',
+                date: { $toDate: '$_id' }
+              }
+            },
+            quantity: {
+              $sum: '$quantity',
+            },
+            price: {
+              $sum: '$price'
+            },
+            order: {
+              $sum: 1
+            }
+          },
+        },
+        {
+          $project:{
+            _id:0,
+            date: '$_id',
+            quantity:1,
+            order: 1,
+            price: 1
+          }
+        }
+      ]).next()
+      console.log(chartData);
       // get total revenue . total order 
       const ordersDetails = await ordersCollection.aggregate([
         {
@@ -375,7 +414,7 @@ async function run() {
         }
       ]).next()
 
-      res.send({ totalPlants, totalUser, ...ordersDetails });
+      res.send({ totalPlants, totalUser, ...ordersDetails, chartData});
     })
     // app.patch()
     // Send a ping to confirm a successful connection
