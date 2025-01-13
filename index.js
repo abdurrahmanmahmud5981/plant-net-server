@@ -5,6 +5,9 @@ const cookieParser = require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const jwt = require('jsonwebtoken')
 const nodemailer = require("nodemailer");
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY);
+
+
 const morgan = require('morgan')
 
 const port = process.env.PORT || 9000
@@ -422,10 +425,20 @@ async function run() {
     app.post('/create-payment-intent', verifyToken, async (req, res) => {
       const { quantity, plantId } = req.body;
       const plant = await plantsCollection.findOne({ _id: new ObjectId(plantId) });
+
       if (!plant) return res.status(400).send({ message: 'Plant not found' });
+
       const totalPrice = quantity * plant.price * 100;// total price in cent (poysha)
-      console.log(totalPrice);
-      res.send({totalPrice})
+      
+      const { client_secret } = await stripe.paymentIntents.create({
+        amount: totalPrice,
+        currency: 'usd',
+        automatic_payment_methods: {
+          enabled: true,
+        }
+      })
+
+      res.send({ clientSecret: client_secret })
     })
     // app.patch()
     // Send a ping to confirm a successful connection
