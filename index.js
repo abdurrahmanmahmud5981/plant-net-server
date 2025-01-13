@@ -371,8 +371,9 @@ async function run() {
       // }
 
       const chartData = await ordersCollection.aggregate([
+        { $sort: { _id: -1 } },
         {
-          $group: {
+          $addFields: {
             _id: {
               $dateToString: {
                 format: '%d/%m/%Y',
@@ -399,7 +400,7 @@ async function run() {
             price: 1
           }
         }
-      ]).next()
+      ]).toArray()
       console.log(chartData);
       // get total revenue . total order 
       const ordersDetails = await ordersCollection.aggregate([
@@ -429,7 +430,7 @@ async function run() {
       if (!plant) return res.status(400).send({ message: 'Plant not found' });
 
       const totalPrice = quantity * plant.price * 100;// total price in cent (poysha)
-      
+
       const { client_secret } = await stripe.paymentIntents.create({
         amount: totalPrice,
         currency: 'usd',
