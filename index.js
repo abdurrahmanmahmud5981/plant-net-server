@@ -388,10 +388,10 @@ async function run() {
           },
         },
         {
-          $project:{
-            _id:0,
+          $project: {
+            _id: 0,
             date: '$_id',
-            quantity:1,
+            quantity: 1,
             order: 1,
             price: 1
           }
@@ -414,7 +414,18 @@ async function run() {
         }
       ]).next()
 
-      res.send({ totalPlants, totalUser, ...ordersDetails, chartData});
+      res.send({ totalPlants, totalUser, ...ordersDetails, chartData });
+    })
+
+
+    // create payment intent 
+    app.post('/create-payment-intent', verifyToken, async (req, res) => {
+      const { quantity, plantId } = req.body;
+      const plant = await plantsCollection.findOne({ _id: new ObjectId(plantId) });
+      if (!plant) return res.status(400).send({ message: 'Plant not found' });
+      const totalPrice = quantity * plant.price * 100;// total price in cent (poysha)
+      console.log(totalPrice);
+      res.send({totalPrice})
     })
     // app.patch()
     // Send a ping to confirm a successful connection
